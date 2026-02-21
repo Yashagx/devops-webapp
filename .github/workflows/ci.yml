@@ -9,17 +9,31 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout Code
-      uses: actions/checkout@v4
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
-    - name: Display files
-      run: ls -la
+      - name: Display files
+        run: ls -la
 
-    - name: Simulate Build
-      run: echo "Build successful"
+      - name: Simulate Build
+        run: echo "Build successful"
 
-    - name: Upload artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: website
-        path: .
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: website
+          path: .
+
+      - name: Slack Notification - Success
+        if: success()
+        run: |
+          curl -X POST -H 'Content-type: application/json' \
+          --data '{"text":"✅ GitHub CI Build Successful!"}' \
+          ${{ secrets.SLACK_WEBHOOK }}
+
+      - name: Slack Notification - Failure
+        if: failure()
+        run: |
+          curl -X POST -H 'Content-type: application/json' \
+          --data '{"text":"❌ GitHub CI Build Failed!"}' \
+          ${{ secrets.SLACK_WEBHOOK }}
